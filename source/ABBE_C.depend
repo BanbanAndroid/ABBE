@@ -6,3 +6,26 @@
 	<stdlib.h>
 	<stdint.h>
 
+1369906717 source:/home/alana/ABBE/source/main.c
+	<pbc/pbc.h>
+	<pbc/pbc_test.h>
+	<stdio.h>
+	<stdlib.h>
+	<stdint.h>
+	"math.h"
+
+1369906701 /home/alana/ABBE/source/math.h
+	<pbc/pbc.h>
+	<pbc/pbc_test.h>
+	<stdio.h>
+	<stdlib.h>
+	<stdint.h>
+
+1369906713 source:/home/alana/ABBE/source/math.c
+	<pbc/pbc.h>
+	<pbc/pbc_test.h>
+	<stdio.h>
+	<stdlib.h>
+	<stdint.h>
+	"math.h"
+
