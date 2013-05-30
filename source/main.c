@@ -10,6 +10,8 @@
 #define n 16
 #define m 16
 
+#define DEBUG_TRACING
+
 //n is the total number of attribute
 //m is the max value that an attribute can have
 //PARAM_SIZE is the size of pairing param
@@ -59,12 +61,6 @@ void setup()
     //    FILE* attr = fopen("attributes.txt", "r");
     //    if (!attr) pbc_die("error opening attributes file");
     //    read_attr(attr);
-
-    //Declaration of pbc numbers
-    element_ptr tailleele;
-   // element_printf("the test is: %zd\n", sizeof(tailleele));
-   // element_init_G1(tailleele, pairing);
-    element_printf("the test is: %zd\n", sizeof(tailleele));
 
     //Declarations of PBC's elements
 
@@ -134,6 +130,8 @@ void setup()
     getRandGtP(air,orderEC);
     getRandGtP(su,orderEC);
 
+    #ifdef DEBUG_TRACING
+
     printf("number of attributes : %i\n", n);
     printf("number of users : %lu\n", l);
 
@@ -144,6 +142,7 @@ void setup()
     gmp_printf ("\nsu is random: %Zd\n", su);
     gmp_printf ("\norderEC is from a1.param: %Zd\n", orderEC);
 
+    #endif
     // CODE
     //open the file that contain the param n,p and l then set them in param
     count = readConfig(param, PARAM_SIZE);
@@ -156,34 +155,40 @@ void setup()
     int h1_size = nbclause;                 //number of CNF header C0
     int h2_size = nbclause;                 //number of DNF header C1
     int t_size = nbclause;                  //number of t[i]
-    int tj_size = m;                //number of t[i]
+    int tj_size = m;                        //number of t[i]
+    #ifdef DEBUG_TRACING
     printf("\n number of attributes = %i \n", n);
     printf("\n number of privates keys = %i \n", ek_size);
     printf("\n number of publics keys = %i \n", dk_size);
     printf("\n number of clauses = %i \n", t_size);
+    #endif
 
-    //allocate memories for tables
-    uintptr_t *ek = malloc(ek_size * sizeof(element_t));
-    uintptr_t *dk = malloc(dk_size * sizeof(element_t));
-    uintptr_t *head1st = malloc(h1_size * sizeof(element_t));
-    uintptr_t *t = malloc(t_size * sizeof(mpz_t));
-    uintptr_t *head2nd = malloc(h2_size * sizeof(element_t));
-    uintptr_t *tj = malloc(t_size * sizeof(mpz_t));
+    //allocate memory
+    uintptr_t *ek = malloc(ek_size * sizeof(element_t));        //public keys
+    uintptr_t *dk = malloc(dk_size * sizeof(element_t));        //private keys
+    uintptr_t *head1st = malloc(h1_size * sizeof(element_t));   //C0
+    uintptr_t *t = malloc(t_size * sizeof(mpz_t));              //t[i]
+    uintptr_t *head2nd = malloc(h2_size * sizeof(element_t));   //C1
+    //uintptr_t *tj = malloc(t_size * sizeof(mpz_t));
     verifalloc(ek);
     verifalloc(dk);
     verifalloc(head1st);
     verifalloc(t);
     verifalloc(head2nd);
-    verifalloc(tj);
-
+    //verifalloc(tj);
 
     //loop for t[i] memory allocation and calculate t
     for(i=1; i <= t_size; i++)
     {
-        t[i] = malloc(sizeof(mpz_t));
+        t[i] = (uintptr_t)malloc(sizeof(mpz_t));
+        // mpz_t temp;
+        // *temp = (mpz_t)t[i];
+        //mpz_init(temp);
         mpz_init(t[i]);
         getRandGtP(t[i], orderEC);
+        #ifdef DEBUG_TRACING
         gmp_printf("\n\n tN[%d]: %Zd\n\n",i,t[i]);
+        #endif
         mpz_add(sum_t,sum_t,t[i]);
         mpz_mod(sum_t,sum_t,orderEC);
         verifalloc(t[i]);
@@ -191,7 +196,7 @@ void setup()
     //loop for public keys memory allocation
     for(i=0; i < ek_size; i++)
     {
-        ek[i] = malloc(sizeof(element_t));
+        ek[i] = (uintptr_t)malloc(sizeof(element_t));
         element_init_G1(ek[i], pairing);
         verifalloc(ek[i]);
     }
@@ -250,24 +255,21 @@ void setup()
 
     //generate g a random element in G
     element_random(g);
-    element_printf("\n\ng is the generator: %B\n\n",g);
+
 
     //calculate g^gamma
     element_pow_mpz(ggamma, g, gamma);
-    element_printf("\n\ng is the g^gamma: %B\n\n",ggamma);
 
     //calculate alpha^n
     mpz_powm_ui(alphan, alpha, n,orderEC);
 
     //calculate v^r
     element_pow_mpz(gair, ggamma, air);
-    element_printf("\n\ng is the g^air: %B\n\n",gair);
 
     //calculate g(n)^b
     mpz_mul (resgbeta, beta, alphan);
     mpz_mod(resgbeta,resgbeta,orderEC);
     element_pow_mpz(gbeta, g, resgbeta);
-    element_printf("\n\ng is the g(n)powbeta: %B\n\n",gbeta);
 
     //calculate g(n)^r(beta+su)
     mpz_add(betasu,beta,su);
@@ -276,7 +278,14 @@ void setup()
     mpz_mul(resultdk1tmp, resultdk1tmp, alpha);
     mpz_mod(resultdk1tmp,resultdk1tmp,orderEC);
     element_pow_mpz(resultdkele, g, resultdk1tmp);
-    element_printf("\n\ng is the dk[0]: %B\n\n",resultdkele);
+
+    #ifdef DEBUG_TRACING
+    element_printf("\n\ndk[0]: %B\n\n",resultdkele);
+    element_printf("\n\ng is a random generator of EC: %B\n\n",g);
+    element_printf("\n\ng^gamma: %B\n\n",ggamma);
+    element_printf("\n\nv^r: %B\n\n",gair);
+    element_printf("\n\ng(n)powbeta: %B\n\n",gbeta);
+    #endif
 
     //calculate gamma * su
     mpz_mul(gammasu,gamma,su);
@@ -296,7 +305,7 @@ void setup()
         mpz_mul (resultalphaair, temp, air);
         mpz_mod(resultalphaair,resultalphaair,orderEC);
         element_pow_mpz(ek[indiceek++],g,resultalphaair);
-
+        printf ("\nek number to n: %hu \n", indiceek);
     }
     // ek[16]n=18 to ek[30]n=32
     //g(n+2)^r to g(2n)^r
@@ -308,16 +317,18 @@ void setup()
         mpz_mul (resultalphaair, temp, air);
         mpz_mod(resultalphaair,resultalphaair,orderEC);
         element_pow_mpz(ek[indiceek++],g,resultalphaair);
+        printf ("\n number from n+2 to 2*n: %hu \n", indiceek);
     }
     ek[indiceek++] = gair; // ek[31] v^r
     ek[indiceek++] = gbeta; // ek[32] g(n)^b
     element_pow_mpz (ek[indiceek++], g, alphan ); // ek[33] g(n)
 
+    #ifdef DEBUG_TRACING
     for(i=0; i < ek_size; i++)
     {
         element_printf("\n\n private key ek[%d]: %B\n\n",i,ek[i]);
     }
-
+    #endif
 
     //**************************calculate privates keys*******************************//
 
@@ -332,24 +343,26 @@ void setup()
         mpz_powm_ui(temp, alpha, j, orderEC);
         mpz_mul (resultsu, temp, su);
         mpz_mod(resultsu,resultsu,orderEC);
+        #ifdef DEBUG_TRACING
         printf ("\n dk number of 1 to n: %hu \n", indicedk);
+        #endif
         element_pow_mpz(dk[indicedk++],g,resultsu);
 
     }
     //dk[17]n=18 to dk[31]n=32
     //g(n+2)^su to g(2n)^su
     for(j=n+2; j <= 2*n; j++)
+
     {
         mpz_t temp;
         mpz_init(temp);
         mpz_powm_ui(temp, alpha, j, orderEC);
         mpz_mul (resultsu, temp, su);
         mpz_mod(resultsu,resultsu,orderEC);
+        #ifdef DEBUG_TRACING
         printf ("\n dk number of n+2 to 2*n: %hu \n", indicedk);
+        #endif
         element_pow_mpz(dk[indicedk++],g,resultsu);
-
-    //    printf ("\n number: %hu \n", indicedk);
-    //    element_printf("\n\n private key dk[%d]: %B\n\n",indicedk,dk[i]);
     }
     //dk[32]N1=1 to dk[47]N1=16
     //di1 to diN1
@@ -360,7 +373,9 @@ void setup()
         mpz_powm_ui(temp, alpha, j, orderEC);
         mpz_mul (resultsu, temp, gammasu);
         mpz_mod(resultsu,resultsu,orderEC);
+        #ifdef DEBUG_TRACING
         printf ("\n number of N1: %hu \n", indicedk);
+        #endif
         element_pow_mpz(dk[indicedk++],g,resultsu);  //g^((gamma * su) * alpha^N1)
     }
     //dk[48]N2=1 to dk[63]N2=16
@@ -372,15 +387,21 @@ void setup()
         mpz_powm_ui(temp, alpha, j, orderEC);
         mpz_mul(resultsu, temp, gammasu);
         mpz_mod(resultsu,resultsu,orderEC);
+        #ifdef DEBUG_TRACING
         printf ("\n number of N2: %hu \n", indicedk);
+        #endif
         element_pow_mpz(dk[indicedk++],g,resultsu);  //g^((gamma * su) * alpha^N2)
     }
 
-    /* for(int i=0; i < dk_size; i++)
+    #ifdef DEBUG_TRACING
+    for(i=0; i < dk_size - 1; i++)
     {
         element_printf("\n\n public key dk[%d]: %B\n\n",i,dk[i]);
     }
-    */
+    element_printf("\n\n public key dk[63]: %B\n\n",dk[63]);
+    #endif
+
+
     //**************************calculate Header***************************//
     int indicegti=1;
 
@@ -410,7 +431,7 @@ void setup()
         element_mul(head2nd[j],head2nd[j],gair);
         element_pow_mpz(head2nd[j],head2nd[j],t[j]);
     }
-
+    #ifdef DEBUG_TRACING
     for(i=1; i <= h1_size; i++)
     {
         element_printf("\n\n header 1st ele[%d]: %B\n\n",i,head1st[i]);
@@ -420,7 +441,7 @@ void setup()
     {
         element_printf("\n\n header 2st ele[%d]: %B\n\n",i,head2nd[i]);
     }
-
+    #endif
     // DNF //
     /*
     for(unsigned long i=1; i <= nbclause; i++){
@@ -523,6 +544,13 @@ void setup()
         printf("CNF Session key hasn't been decrypted\n");
     }
 
+    //free allocated
+    free(ek);
+    free(dk);
+    free(head1st);
+    free(head2nd);
+    free(t);
+
     //clear all elements
     element_clear(g);
     element_clear(ggamma);
@@ -541,7 +569,7 @@ void setup()
     element_clear(decrypte);
     element_clear(hdr0);
     element_clear(tempsession);
-    // element_clear(temp3);
+   // element_clear(temp3);
     pairing_clear(pairing);
 }
 
