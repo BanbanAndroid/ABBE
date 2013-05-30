@@ -48,7 +48,7 @@ void getRandGtP(mpz_t nb, mpz_t p)
     }
 }
 
-void verifalloc(uintptr_t w)
+void verifalloc(uintptr_t *w)
 {
     if(w == NULL){
     fprintf(stderr,"Memory allocation failed \n");
@@ -56,6 +56,8 @@ void verifalloc(uintptr_t w)
     }
     else
     {
+        #ifdef DEBUG_TRACING
         printf("Memory allocation success \n");
+        #endif
     }
 }
