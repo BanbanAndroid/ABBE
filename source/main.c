@@ -15,23 +15,23 @@
 //PARAM_SIZE is the size of pairing param
 //BYTESNUM is the size of bytes we want to read in /dev/urandom
 
-// Declaration des fonctions
+// Declaration of functions
 void setup();
 
 
 int main()
 {
-    printf("*********************************************************\n");
-    printf("*********************************************************\n");
-    printf("*********************************************************\n");
-    printf("Welcome to ABBE Scheme Allowing Arbitrary Access Policies\n");
-    printf("Created by Pascal Junod and Alexandre Karlov\n");
-    printf("Implemented by Cedric De Carvalho\n");
-    printf("All rights reserved by HEIG-VD and Kudelski Nagravision\n");
-    printf("*********************************************************\n");
-    printf("*********************************************************\n");
-    printf("*********************************************************\n");
-    printf("*********************************************************\n");
+    printf("***********************************************************************************\n");
+    printf("***********************************************************************************\n");
+    printf("***********************************************************************************\n");
+    printf("******************ABBE Scheme Allowing Arbitrary Access Policies*******************\n");
+    printf("*******************Created by Pascal Junod and Alexandre Karlov********************\n");
+    printf("*************************Implemented by Cedric De Carvalho*************************\n");
+    printf("**************All rights reserved by HEIG-VD and Kudelski Nagravision**************\n");
+    printf("***********************************************************************************\n");
+    printf("***********************************************************************************\n");
+    printf("***********************************************************************************\n");
+    printf("***********************************************************************************\n");
 
     setup();
 
@@ -50,14 +50,11 @@ void pbc_mpz_urandomb(mpz_t z, unsigned int bits)
 //readConfig will read the pairing parameter in a1.param
 size_t readConfig(char *param, size_t size)
 {
-    FILE* fp = fopen("/usr/share/doc/examples/param/a1.param", "r");
+    FILE* fp = fopen("a1.param", "r");
     if (!fp) pbc_die("error opening param file");
-
     size_t count = fread(param, 1, size, fp);
     if (!count) pbc_die("input error");
-
     fclose(fp);
-
     return count;
 }
 
@@ -66,7 +63,7 @@ void getRand(mpz_t rand_number)
 {
     char number[BYTESNUM];
     FILE* urandom = fopen("/dev/urandom", "r");
-    fread(number, BYTESNUM, 1, urandom);
+    fread(number, BYTESNUM, 1, urandom);    //read 128 bytes in /dev/urandom
     fclose(urandom);
     //printf ("\n number1024 : %s \n", number);
     mpz_import(rand_number, BYTESNUM, 1, sizeof(number[0]), 0, 0, number);
@@ -76,11 +73,12 @@ void getRand(mpz_t rand_number)
 void getRandGtP(mpz_t nb, mpz_t p)
 {
     getRand(nb);
-    //gmp_printf ("\ntestal is random: %Zd\n", testal);
-    while (mpz_cmp(nb, p) <= 0){
-      //  gmp_printf("\nnew nb is %Zd\n", nb);
-      //  gmp_printf("\np is %Zd\n", p);
-      //  printf ("\nmpz_cmp %d\n", mpz_cmp(p, nb));
+    //gmp_printf ("\norderEC is random: %Zd\n", orderEC);
+    while (mpz_cmp(nb, p) <= 0)
+    {
+        //  gmp_printf("\nnew nb is %Zd\n", nb);
+        //  gmp_printf("\np is %Zd\n", p);
+        //  printf ("\nmpz_cmp %d\n", mpz_cmp(p, nb));
         getRand(nb);
         //return;
     }
@@ -125,9 +123,9 @@ void read_attr (FILE *fich){
 
 void setup()
 {
-    // VARIABLES INITIALIZATION
-    pairing_t         pairing;     //decla of pairing
-  //  unsigned long     k       = 2;          //nb of attributes in this example     (A1 + A2) & (A3 + A4)
+    //VARIABLES INITIALIZATION
+    pairing_t         pairing;              //decla of pairing
+    //unsigned long     k       = 2;        //nb of attributes in this exampl(A1 + A2) & (A3 + A4)
     unsigned long     a1      = 1;          //attribute 1
     unsigned long     a2      = 2;          //attribute 2
     unsigned long     a3      = 3;          //attribute 3
@@ -152,6 +150,8 @@ void setup()
    // element_init_G1(tailleele, pairing);
     element_printf("the test is: %zd\n", sizeof(tailleele));
 
+    //Declarations of PBC's elements
+
     element_t         g         ;       //g is a random generator of G
     element_t         sessionkey;       //the global session key for CNF
     element_t         ggamma;           //g^gamma
@@ -174,15 +174,14 @@ void setup()
     element_t         tempsession;      //used during session's calculation
 
     //Declarations of gmp numbers
-    mpz_t             rnd;
-    mpz_t             alpha;
-    mpz_t             gamma;
-    mpz_t             beta;
-    mpz_t             air;
-    mpz_t             testal;
-    mpz_t             su;
+
+    mpz_t             alpha;                //random number Z/Zp
+    mpz_t             gamma;                //random number Z/Zp
+    mpz_t             beta;                 //random number Z/Zp
+    mpz_t             air;                  //random number Z/Zp
+    mpz_t             orderEC;               //order of Elliptics Curves
+    mpz_t             su;                   //random number Z/Zp
     mpz_t             resultalphaair;       //alpha * r, used for public keys
-    mpz_t             mpzn;
     mpz_t             resgbeta;             //g^beta
     mpz_t             resultsu;             //alpha * su
     mpz_t             resultdk1tmp;         //for calculate resultdkele
@@ -195,15 +194,14 @@ void setup()
     char comparo[] = "36203638728584889925158415861634051131656232976339194924022065306723188923966451762160327870969638730567198058600508960697138006366861790409776528385407283664860565239295291314844246909284597617282274074224254733917313218308080644731349763985110821627195514711746037056425804819692632040479575042834043863089";
 
     //Initialization of gmp numbers
-    mpz_init(testal);
-    mpz_set_str(testal, comparo, 10);
+    mpz_init(orderEC);
+    mpz_set_str(orderEC, comparo, 10);
     mpz_init(alpha);
     mpz_init(gamma);
     mpz_init(beta);
     mpz_init(air);
     mpz_init(su);
     mpz_init(resultalphaair);
-    mpz_init(mpzn);
     mpz_init(resgbeta);
     mpz_init(resultsu);
     mpz_init(resultdk1tmp);
@@ -212,14 +210,13 @@ void setup()
     mpz_init(sum_t);
     mpz_init(alphan);
     mpz_init(hdr0tmp);
-    mpz_init(rnd);
 
     //generate random value Z/pZ
-    getRandGtP(alpha,testal);
-    getRandGtP(gamma,testal);
-    getRandGtP(beta,testal);
-    getRandGtP(air,testal);
-    getRandGtP(su,testal);
+    getRandGtP(alpha,orderEC);
+    getRandGtP(gamma,orderEC);
+    getRandGtP(beta,orderEC);
+    getRandGtP(air,orderEC);
+    getRandGtP(su,orderEC);
 
     printf("number of attributes : %i\n", n);
     printf("number of users : %lu\n", l);
@@ -229,9 +226,7 @@ void setup()
     gmp_printf ("\nbeta is random: %Zd\n", beta);
     gmp_printf ("\nair is random: %Zd\n", air);
     gmp_printf ("\nsu is random: %Zd\n", su);
-    gmp_printf ("\ntestal is from a1.param: %Zd\n", testal);
-    //printf ("\ncomparo is random: %s\n", comparo);
-    mpz_set_ui (mpzn, n);
+    gmp_printf ("\norderEC is from a1.param: %Zd\n", orderEC);
 
     // CODE
     //open the file that contain the param n,p and l then set them in param
@@ -266,32 +261,32 @@ void setup()
     verifalloc(tj);
 
 
-    //loop for t[i] allocation and calculate t
+    //loop for t[i] memory allocation and calculate t
     for(i=1; i <= t_size; i++)
     {
         t[i] = malloc(sizeof(mpz_t));
         mpz_init(t[i]);
-        getRandGtP(t[i], testal);
+        getRandGtP(t[i], orderEC);
         gmp_printf("\n\n tN[%d]: %Zd\n\n",i,t[i]);
         mpz_add(sum_t,sum_t,t[i]);
-        mpz_mod(sum_t,sum_t,testal);
+        mpz_mod(sum_t,sum_t,orderEC);
         verifalloc(t[i]);
     }
-    //loop for public keys allocation
+    //loop for public keys memory allocation
     for(i=0; i < ek_size; i++)
     {
         ek[i] = malloc(sizeof(element_t));
         element_init_G1(ek[i], pairing);
         verifalloc(ek[i]);
     }
-    //loop for private keys allocation
+    //loop for private keys memory allocation
     for(i=0; i < dk_size; i++)
     {
         dk[i] = malloc(sizeof(element_t));
         element_init_G1(dk[i], pairing);
         verifalloc(dk[i]);
     }
-    //loop for C0 of header : g^(r*ti) allocation
+    //loop for C0 of header : g^(r*ti) memory allocation
     for(i=1; i <= h1_size; i++)
     {
         head1st[i] = malloc(sizeof(element_t));
@@ -346,7 +341,7 @@ void setup()
     element_printf("\n\ng is the g^gamma: %B\n\n",ggamma);
 
     //calculate alpha^n
-    mpz_powm_ui(alphan, alpha, n,testal);
+    mpz_powm_ui(alphan, alpha, n,orderEC);
 
     //calculate v^r
     element_pow_mpz(gair, ggamma, air);
@@ -354,22 +349,22 @@ void setup()
 
     //calculate g(n)^b
     mpz_mul (resgbeta, beta, alphan);
-    mpz_mod(resgbeta,resgbeta,testal);
+    mpz_mod(resgbeta,resgbeta,orderEC);
     element_pow_mpz(gbeta, g, resgbeta);
     element_printf("\n\ng is the g(n)powbeta: %B\n\n",gbeta);
 
     //calculate g(n)^r(beta+su)
     mpz_add(betasu,beta,su);
-    mpz_mod(betasu,betasu,testal);
+    mpz_mod(betasu,betasu,orderEC);
     mpz_mul(resultdk1tmp, betasu, air);
     mpz_mul(resultdk1tmp, resultdk1tmp, alpha);
-    mpz_mod(resultdk1tmp,resultdk1tmp,testal);
+    mpz_mod(resultdk1tmp,resultdk1tmp,orderEC);
     element_pow_mpz(resultdkele, g, resultdk1tmp);
     element_printf("\n\ng is the dk[0]: %B\n\n",resultdkele);
 
     //calculate gamma * su
     mpz_mul(gammasu,gamma,su);
-    mpz_mod(gammasu,gammasu,testal);
+    mpz_mod(gammasu,gammasu,orderEC);
 
     int indiceek=0;
     int indicedk=0;
@@ -381,9 +376,9 @@ void setup()
     {
         mpz_t temp;
         mpz_init(temp);
-        mpz_powm_ui(temp, alpha, j, testal);
+        mpz_powm_ui(temp, alpha, j, orderEC);
         mpz_mul (resultalphaair, temp, air);
-        mpz_mod(resultalphaair,resultalphaair,testal);
+        mpz_mod(resultalphaair,resultalphaair,orderEC);
         element_pow_mpz(ek[indiceek++],g,resultalphaair);
 
     }
@@ -393,9 +388,9 @@ void setup()
     {
         mpz_t temp;
         mpz_init(temp);
-        mpz_powm_ui(temp, alpha, j, testal);
+        mpz_powm_ui(temp, alpha, j, orderEC);
         mpz_mul (resultalphaair, temp, air);
-        mpz_mod(resultalphaair,resultalphaair,testal);
+        mpz_mod(resultalphaair,resultalphaair,orderEC);
         element_pow_mpz(ek[indiceek++],g,resultalphaair);
     }
     ek[indiceek++] = gair; // ek[31] v^r
@@ -418,9 +413,9 @@ void setup()
     {
         mpz_t temp;
         mpz_init(temp);
-        mpz_powm_ui(temp, alpha, j, testal);
+        mpz_powm_ui(temp, alpha, j, orderEC);
         mpz_mul (resultsu, temp, su);
-        mpz_mod(resultsu,resultsu,testal);
+        mpz_mod(resultsu,resultsu,orderEC);
         printf ("\n dk number of 1 to n: %hu \n", indicedk);
         element_pow_mpz(dk[indicedk++],g,resultsu);
 
@@ -431,9 +426,9 @@ void setup()
     {
         mpz_t temp;
         mpz_init(temp);
-        mpz_powm_ui(temp, alpha, j, testal);
+        mpz_powm_ui(temp, alpha, j, orderEC);
         mpz_mul (resultsu, temp, su);
-        mpz_mod(resultsu,resultsu,testal);
+        mpz_mod(resultsu,resultsu,orderEC);
         printf ("\n dk number of n+2 to 2*n: %hu \n", indicedk);
         element_pow_mpz(dk[indicedk++],g,resultsu);
 
@@ -446,9 +441,9 @@ void setup()
     {
         mpz_t temp;
         mpz_init(temp);
-        mpz_powm_ui(temp, alpha, j, testal);
+        mpz_powm_ui(temp, alpha, j, orderEC);
         mpz_mul (resultsu, temp, gammasu);
-        mpz_mod(resultsu,resultsu,testal);
+        mpz_mod(resultsu,resultsu,orderEC);
         printf ("\n number of N1: %hu \n", indicedk);
         element_pow_mpz(dk[indicedk++],g,resultsu);  //g^((gamma * su) * alpha^N1)
     }
@@ -458,9 +453,9 @@ void setup()
     {
         mpz_t temp;
         mpz_init(temp);
-        mpz_powm_ui(temp, alpha, j, testal);
+        mpz_powm_ui(temp, alpha, j, orderEC);
         mpz_mul(resultsu, temp, gammasu);
-        mpz_mod(resultsu,resultsu,testal);
+        mpz_mod(resultsu,resultsu,orderEC);
         printf ("\n number of N2: %hu \n", indicedk);
         element_pow_mpz(dk[indicedk++],g,resultsu);  //g^((gamma * su) * alpha^N2)
     }
@@ -481,10 +476,10 @@ void setup()
         mpz_t temp;
         mpz_init(temp);
         mpz_mul (temp, air, t[j]);
-        mpz_mod(temp,temp,testal);
+        mpz_mod(temp,temp,orderEC);
         element_pow_mpz(head1st[indicegti++],g,temp);   //g^(r*t[i]))
 
-    //Header 2nd element - formula to compute the N part
+        //Header 2nd element - formula to compute the N part
         signed long int onez = 1;
         element_t temp3;
         head2nd[j] = malloc(sizeof(element_t));     //allocate memory for C1
@@ -492,9 +487,9 @@ void setup()
         element_init_G1(temp3, pairing);
         element_init_G1(head2nd[j], pairing);
         if (j==1){
-        element_add(temp3, ek[n+1-a1-1], ek[n+1-a2-1]);}    //addition the rights points for 1st clause
+        element_add(temp3, ek[n+1-a1-1], ek[n+1-a2-1]);} //addition the rights points for 1st clause
         if (j==2){
-        element_add(temp3, ek[n+1-a3-1], ek[n+1-a4-1]);}    //addition the rights points for 2nd clause
+        element_add(temp3, ek[n+1-a3-1], ek[n+1-a4-1]);} //addition the rights points for 2nd clause
         element_mul_si(head2nd[j],temp3,onez);      //head2nd = temp3 (onez is just a value=1)
         element_mul(head2nd[j],head2nd[j],gair);
         element_pow_mpz(head2nd[j],head2nd[j],t[j]);
@@ -516,7 +511,7 @@ void setup()
         mpz_t temp;
         mpz_init(temp);
         mpz_mul (temp, air, t[i]);
-        mpz_mod_ui(temp,temp,testal);
+        mpz_mod_ui(temp,temp,orderEC);
         element_pow_mpz(rti[indicegti++],g,temp);
 
         //Header 2nd element - formula to compute the N part
@@ -550,6 +545,7 @@ void setup()
 
     for(j=1; j <= nbclause; j++)
     {
+        //for each clause, calculate the temp session key associated
         //clause 1
         if(j==1)
         {
@@ -569,7 +565,7 @@ void setup()
     }
     element_add(decryptc,decryptc1,decryptc2);  //all temps sessions keys add
     mpz_mul(hdr0tmp,sum_t,alphan);              //
-    mpz_mod(hdr0tmp,hdr0tmp,testal);
+    mpz_mod(hdr0tmp,hdr0tmp,orderEC);
     element_pow_mpz(hdr0,g,hdr0tmp);            //hdr0, g^(r*t[i])
     pairing_apply(decryptd,hdr0,dk[0],pairing); //pairing dividende of global session
     element_div(decrypte,decryptd,decryptc);    //calculate the global session key decrypted
@@ -594,7 +590,7 @@ void setup()
         }
     element_add(decryptc,decryptc1,decryptc2);
     mpz_mul(hdr0tmp,sum_t,alphan);
-    mpz_mod(hdr0tmp,hdr0tmp,testal);
+    mpz_mod(hdr0tmp,hdr0tmp,orderEC);
     element_pow_mpz(hdr0,g,hdr0tmp);
     pairing_apply(decryptd,hdr0,dk[0],pairing);
     element_div(decrypte,decryptd,decryptc);
@@ -602,7 +598,6 @@ void setup()
     */
 
     //compare the global session key with the decrypted global session key
-
     if(!element_cmp(sessionkey, decrypte))
     {
         printf("CNF Session key has been decrypted\n");
@@ -613,7 +608,6 @@ void setup()
     }
 
     //clear all elements
-
     element_clear(g);
     element_clear(ggamma);
     element_clear(galpha);
@@ -631,7 +625,7 @@ void setup()
     element_clear(decrypte);
     element_clear(hdr0);
     element_clear(tempsession);
-  //  element_clear(temp3);
+    // element_clear(temp3);
     pairing_clear(pairing);
 }
 
